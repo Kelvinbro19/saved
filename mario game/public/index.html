@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Mario Bros-like Game Mobile Friendly</title>
+  <link rel="stylesheet" href="">
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0; padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #87CEEB, #ffffff);
+      color: #222;
+      user-select: none;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+    button, input[type=text], input[type=password] {
+      font-family: inherit;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1.5px solid #aaa;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.3s ease;
+      width: 90%;
+      max-width: 320px;
+      box-sizing: border-box;
+      margin-bottom: 16px;
+    }
+    input[type=text]:focus, input[type=password]:focus {
+      border-color: #ff7e5f;
+    }
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 14px 20px;
+      user-select: none;
+      width: 90%;
+      max-width: 320px;
+      margin-bottom: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+      display: block;
+    }
+    button:hover, button:focus {
+      background: linear-gradient(135deg, #feb47b, #ff7e5f);
+      outline: none;
+    }
+    .link-button {
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+      color: #ff7e5f !important;
+      text-decoration: underline;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      display: inline-block;
+      width: auto;
+    }
+    button:disabled, button[disabled]{
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #ccc !important;
+      color: #666 !important;
+      box-shadow: none !important;
+      text-decoration: none !important;
+    }
+    .hidden {
+      display: none !important;
+    }
+    #app {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 12px 24px 48px 24px;
+    }
+    h1,h2,h3 {
+      text-align: center;
+      font-weight: 800;
+      color: #ff7e5f;
+      margin-bottom: 24px;
+      user-select: none;
+    }
+    .centered {
+      text-align: center;
+    }
+    /* Layout containers */
+    .container {
+      background: white;
+      padding: 20px 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+      margin-top: 30px;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Game UI */
+    #gameContainer {
+      position: relative;
+      max-width: 100%;
+      margin: 24px auto;
+      background: #91d7ff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      touch-action: none;
+    }
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+      background: linear-gradient(to top, #6ccbff 0%, #a6eaff 100%);
+      border-radius: 16px 16px 0 0;
+      outline: none;
+    }
+    #scoreboard, #levelIndicator {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: rgba(255,126,95,0.9);
+      color: white;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      user-select: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      min-width: 100px;
+      text-align: center;
+      z-index: 10;
+    }
+    #levelIndicator {
+      left: 130px;
+    }
+
+    /* Touch Controls */
+    #touchControls {
+      position: fixed;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 20;
+      user-select: none;
+      pointer-events: auto;
+      touch-action: manipulation;
+    }
+    #touchControls button {
+      flex: 1;
+      margin: 0 6px;
+      padding: 10px 0; /* Reduced padding for smaller buttons */
+      font-size: 1.2rem; /* Adjusted font size */
+      border-radius: 16px;
+      user-select: none;
+      background: #ff7e5f;
+      border: none;
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transition: background 0.3s ease;
+    }
+    #touchControls button:active {
+      background: #feb47b;
+    }
+    @media (min-width: 800px) {
+      #touchControls { display: none; }
+    }
+
+    /* Instructions page */
+    #instructionsPage {
+      max-width: 480px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      font-weight: 600;
+      line-height: 1.4;
+      color: #333;
+    }
+    #instructionsPage h2 {
+      color: #ff7e5f;
+      margin-bottom: 16px;
+      user-select: none;
+    }
+    #instructionsPage ul {
+      padding-left: 1.2em;
+      margin-bottom: 16px;
+    }
+    #instructionsPage li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+<div id="app">
+  <!-- Login/Register Menu -->
+  <div id="menu" class="container centered">
+    <h1>Game Nario Boros</h1>
+    <button id="btnLogin" aria-label="Login">Login</button>
+    <button id="btnRegister" aria-label="Register">Register</button>
+  </div>
+
+  <!-- Login -->
+  <div id="login" class="container centered hidden" role="form" aria-label="Login form">
+    <h2>Login</h2>
+    <input type="text" id="loginUsername" autocomplete="username" spellcheck="false" placeholder="Username" aria-label="Username" />
+    <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Password" aria-label="Password" />
+    <button id="loginSubmit">Login</button>
+    <button type="button" class="link-button" id="loginBack" aria-label="Back to main menu">Back to Menu</button>
+  </div>
+
+  <!-- Register -->
+  <div id="register" class="container centered hidden" role="form" aria-label="Register form">
+    <h2>Register</h2>
+    <input type="text" id="registerUsername" autocomplete="username" spellcheck="false" placeholder="Username" aria-label="Username" />
+    <input type="password" id="registerPassword" autocomplete="new-password" placeholder="Password" aria-label="Password" />
+    <button id="registerSubmit">Register</button>
+    <button type="button" class="link-button" id="registerBack" aria-label="Back to main menu">Back to Menu</button>
+  </div>
+
+  <!-- Main Menu -->
+  <div id="mainMenu" class="container centered hidden" role="menu" aria-label="Main Menu after login">
+    <h1>Welcome, <span id="userWelcome"></span>!</h1>
+    <button id="btnLevelSelect" aria-label="Select Level">Pilih Level</button>
+    <button id="btnInstruction" aria-label="Instructions">Instruksi</button>
+    <button id="btnLeaderboard" aria-label="Leaderboard">Leaderboard</button>
+    <button id="btnInfo" aria-label="Info Page">Info</button>
+    <button id="btnDevProfile" aria-label="Developer Profile">Profil Developer</button>
+    <button id="btnLogout" aria-label="Logout">Logout</button>
+  </div>
+
+  <!-- Instructions Page -->
+  <div id="instructionsPage" class="container hidden" aria-label="Game Instructions">
+    <h2>Instruksi Bermain</h2>
+    <p>Selamat datang di game Mario Bros kita! Berikut cara bermain:</p>
+    <ul>
+      <li>Gunakan tombol panah kiri dan kanan pada keyboard untuk bergerak.</li>
+      <li>Tekan tombol panah atas atau spasi untuk melompat.</li>
+      <li>Di perangkat handphone, gunakan tombol sentuh di bawah layar untuk kontrol kiri, lompat, dan kanan.</li>
+      <li>Hindari monster dan laser, kumpulkan koin jika bisa.</li>
+      <li>Berlari hingga pintu kecil di ujung level untuk menyelesaikan level dan lanjut ke level berikutnya.</li>
+      <li>Kumpulkan koin sebanyak mungkin untuk mencapai skor maksimal!</li>
+    </ul>
+    <button class="link-button" id="backFromInstructions">Kembali ke Menu</button>
+  </div>
+
+  <!-- Level Selection -->
+  <div id="levelSelect" class="container hidden" role="list" aria-label="Level Selection">
+    <h2>Pilih Level</h2>
+    <div id="levelButtonsContainer" aria-label="Level Buttons">
+      <!-- Level buttons will be appended here dynamically -->
+    </div>
+    <button class="link-button" id="backFromLevelSelect" aria-label="Back to main menu">Back</button>
+  </div>
+
+  <!-- Game Container -->
+  <div id="gameContainer" class="hidden" aria-label="Game Container">
+    <canvas id="gameCanvas" tabindex="0" aria-label="Game canvas"></canvas>
+    <div id="scoreboard" aria-live="polite" aria-atomic="true" aria-label="Coin Scoreboard">Koin: 0</div>
+    <div id="levelIndicator" aria-label="Current Level">Level: 1</div>
+    <button id="exitGameBtn" aria-label="Exit Game">Exit</button>
+  </div>
+
+  <!-- Touch Controls for Mobile -->
+  <div id="touchControls" class="hidden" role="group" aria-label="Game Touch Controls">
+    <div style="display: flex; justify-content: space-between; width: 100%;">
+      <button id="btnLeft" aria-label="Move Left" title="Move Left">&larr;</button>
+      <button id="btnJump" aria-label="Jump" title="Jump">&#8679;</button>
+      <button id="btnRight" aria-label="Move Right" title="Move Right">&rarr;</button>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="leaderboard" class="container hidden" aria-label="Leaderboard">
+    <h2>Leaderboard</h2>
+    <div style="overflow-x:auto;">
+      <table aria-label="Leaderboard Table" role="table">
+        <thead>
+          <tr><th scope="col">Rank</th><th scope="col">Username</th><th scope="col">Level Tertinggi</th><th scope="col">Koin Terkumpul</th><th scope="col">Waktu Pencapaian</th></tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </div>
+    <button class="link-button" id="backFromLeaderboard" aria-label="Back to main menu">Back</button>
+  </div>
+
+  <!-- Info Page (Kelvin Only) -->
+  <div id="infoPage" class="container hidden" aria-label="Info Page">
+    <h2>Info Akun Terdaftar</h2>
+    <ul id="infoList" aria-live="polite" aria-atomic="true"></ul>
+    <button class="link-button" id="backFromInfo" aria-label="Back to main menu">Back</button>
+  </div>
+
+  <!-- Developer Profile -->
+  <div id="devProfile" class="container hidden" aria-label="Developer Profile">
+    <h2>Profil Developer</h2>
+    <div id="devTabs" role="tablist" aria-label="Developer Profile Tabs">
+      <button data-tab="profile" role="tab" aria-selected="true" tabindex="0" aria-controls="tabProfile">Profil</button>
+      <button data-tab="contact" role="tab" aria-selected="false" tabindex="-1" aria-controls="tabContact">Kontak</button>
+      <button data-tab="social" role="tab" aria-selected="false" tabindex="-1" aria-controls="tabSocial">Media Sosial</button>
+    </div>
+    <div id="devProfileContent" role="tabpanel" tabindex="0" aria-live="polite" aria-atomic="true" aria-label="Developer Profile Content">
+      <!-- Content changes dynamically -->
+    </div>
+    <button class="link-button" id="backFromDevProfile" aria-label="Back to main menu">Back</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // Shortcuts
+  const $ = (id) => document.getElementById(id);
+
+  // Elements
+  const containers = ['menu', 'login', 'register', 'mainMenu', 'instructionsPage', 'levelSelect', 'gameContainer', 'leaderboard', 'infoPage', 'devProfile'];
+  const touchControls = $('touchControls');
+  const gameCanvas = $('gameCanvas');
+  const scoreboardEl = $('scoreboard');
+  const levelIndicatorEl = $('levelIndicator');
+  const levelButtonsContainer = $('levelButtonsContainer');
+  const infoList = $('infoList');
+  const devTabs = document.getElementById('devTabs');
+  const devProfileContent = $('devProfileContent');
+
+  // App state
+  let users = JSON.parse(localStorage.getItem('marioUsers') || '[]');
+  let leaderboard = JSON.parse(localStorage.getItem('marioLeaderboard') || '[]');
+  let currentUser    = null;
+  let currentLevel = 1;
+
+  // Highest unlocked level tracking (localStorage key)
+  const HIGHEST_LEVEL_KEY = 'marioHighestLevelUnlocked';
+
+  // Device info for users
+  function getDeviceInfo() {
+    return navigator.userAgent || 'Unknown Device';
+  }
+  function getIpAddress() {
+    return '192.168.1.' + Math.floor(Math.random() * 254 + 1);
+  }
+  function getLocation() {
+    return 'Jakarta, Indonesia';
+  }
+
+  function saveUsers() {
+  localStorage.setItem('marioUsers', JSON.stringify(users));
+ }
+  function saveLeaderboard() {
+    localStorage.setItem('marioLeaderboard', JSON.stringify(leaderboard));
+  }
+  function saveSession() {
+    sessionStorage.setItem('marioCurrentUser   ', JSON.stringify(currentUser   ));
+  }
+  function loadSession() {
+    const u = sessionStorage.getItem('marioCurrentUser   ');
+    if (u) currentUser    = JSON.parse(u);
+  }
+  function loadUsers() {
+  const storedUsers = localStorage.getItem('marioUsers');
+  if (storedUsers) {
+    users = JSON.parse(storedUsers);
+  } else {
+    users = []; // Jika tidak ada pengguna yang disimpan
+  }
+}
+  function logout() {
+    currentUser    = null;
+    sessionStorage.removeItem('marioCurrentUser   ');
+  }
+
+  function showContainer(id) {
+    containers.forEach(c => $(c).classList.add('hidden'));
+    $(id).classList.remove('hidden');
+    if (id === 'gameContainer') {
+      setTimeout(() => gameCanvas.focus(), 100);
+      updateScoreboard();
+      updateLevelIndicator();
+      if (window.innerWidth <= 800) {
+        touchControls.classList.remove('hidden');
+      } else {
+        touchControls.classList.add('hidden');
+      }
+    } else {
+      touchControls.classList.add('hidden');
+    }
+  }
+  const alertMsg = (msg) => alert(msg);
+
+  // Login validation
+  function loginUser   (username, password) {
+    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+    if (user) {
+      currentUser    = user;
+      saveSession();
+      updateUserLogin(username);
+      return true;
+    }
+    return false;
+  }
+  function registerUser (username, password) {
+  if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+    return false; // Username already exists
+  }
+  const newUser  = {
+    username,
+    password,
+    device: getDeviceInfo(),
+    ip: getIpAddress(),
+    location: getLocation(),
+    lastLogin: Date.now()
+  };
+  // Simpan pengguna secara lokal
+  users.push(newUser );
+  saveUsers(); // Simpan ke localStorage
+  return true;
+}
+  function updateUserLogin(username) {
+    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    if (user) {
+      user.lastLogin = Date.now();
+      saveUsers();
+    }
+  }
+  function getHighestUnlockedLevel() {
+    const val = localStorage.getItem(HIGHEST_LEVEL_KEY);
+    if (val) {
+      let lvl = parseInt(val, 10);
+      return (isNaN(lvl) || lvl < 1) ? 1 : Math.min(lvl, 20);
+    }
+    return 1;
+  }
+  function setHighestUnlockedLevel(lvl) {
+    if (lvl > getHighestUnlockedLevel()) {
+      localStorage.setItem(HIGHEST_LEVEL_KEY, lvl);
+       }
+  }
+  function populateLevels() {
+    const highest = getHighestUnlockedLevel();
+    levelButtonsContainer.innerHTML = '';
+    for (let i = 1; i <= 20; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.setAttribute('aria-label', `Start Level ${i}`);
+      if (i <= highest) {
+        btn.disabled = false;
+        btn.onclick = () => startLevel(i);
+      } else {
+        btn.disabled = true;
+        btn.title = 'Level terkunci, selesaikan level sebelumnya dulu';
+      }
+      levelButtonsContainer.appendChild(btn);
+    }
+  }
+  function sortLeaderboard() {
+    leaderboard.sort((a, b) => {
+      if (b.level !== a.level) return b.level - a.level;
+      if (b.coins !== a.coins) return b.coins - a.coins;
+      return a.timestamp - b.timestamp;
+    });
+  }
+  function renderLeaderboard() {
+    sortLeaderboard();
+    const tbody = $('leaderboardBody');
+    tbody.innerHTML = '';
+    leaderboard.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i + 1}</td><td>${row.username}</td><td>${row.level}</td><td>${row.coins}</td><td>${new Date(row.timestamp).toLocaleString()}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  // Only show info menu if user is Kelvin with KelvinA22 password
+  function renderInfo() {
+    if (!currentUser     || currentUser    .username.toLowerCase() !== 'kelvin' || currentUser    .password !== 'KelvinA22') {
+      alertMsg('Anda tidak dapat mengakses halaman ini.');
+      showContainer('mainMenu');
+      return;
+    }
+    infoList.innerHTML = '';
+    users.forEach(u => {
+      const li = document.createElement('li');
+      li.textContent = `Username: ${u.username}, Password: ${u.password}, Device: ${u.device}, IP: ${u.ip}, Location: ${u.location}`;
+      infoList.appendChild(li);
+    });
+  }
+
+  function setDevTab(tab) {
+    [...devTabs.children].forEach(btn => {
+      const selected = btn.dataset.tab === tab;
+      btn.classList.toggle('active', selected);
+      btn.setAttribute('aria-selected', selected);
+      btn.tabIndex = selected ? 0 : -1;
+    });
+    switch (tab) {
+      case 'profile':
+        devProfileContent.innerHTML = `
+          <p><strong>Nama:</strong> Kelvin</p>
+          <p><strong>Pekerjaan:</strong> sekolahhh</p>
+          <p><strong>Bio:</strong> icikiwir</p>
+        `; break;
+      case 'contact':
+        devProfileContent.innerHTML = `
+          <p><strong>Email:</strong> rahasia</p>
+          <p><strong>Telepon:</strong> +62 899-9038-928</p>
+          <p><strong>Alamat:</strong> planet, bumi</p>
+        `; break;
+      case 'social':
+        devProfileContent.innerHTML = `
+          <p><strong>TikTok:</strong> <a href="https://www.tiktok.com/@k1ngv1nzz" target="_blank" rel="noopener">@k1ngv1nzz</a></p>
+          <p><strong>Instagram:</strong> <a href="https://instagram.com/klvv_vinnn" target="_blank" rel="noopener">@klvv_vinnn</a></p>
+        `; break;
+    }
+  }
+
+  // Game constants and data
+  const GRAVITY = 0.7;
+  const PLAYER_SPEED = 4;
+  const JUMP_POWER = 14;
+  const FPS = 60;
+  const TILE_SIZE = 32;
+  const COINS_PER_LEVEL = 10;
+  const levels = [];
+  // Generate level data
+  for (let i = 1; i <= 20; i++) {
+    let w = 40 + i * 5;
+    let platforms = [
+      { x: 0, y: 11, length: w },
+      { x: 10 + i * 2, y: 8, length: 4 },
+      { x: 20 + i * 2, y: 6, length: 3 },
+      { x: 30 + i * 3, y: 7, length: 5 }
+    ];
+    let monsters = [];
+    for (let m = 0; m < i; m++) {
+      let platIndex = m % platforms.length;
+      let plat = platforms[platIndex];
+      monsters.push({
+        x: (plat.x * TILE_SIZE) + 5,
+        y: (plat.y * TILE_SIZE) - 32,
+        width: 32,
+        height: 32,
+        speed: (m % 2 === 0 ? 1 : 1.5),
+        dir: 1,
+        patrolStartX: plat.x * TILE_SIZE + 5,
+        patrolEndX: plat.x * TILE_SIZE + (plat.length * TILE_SIZE) - 32 - 5,
+        active: false // Initially inactive, spawn later
+      });
+    }
+    let lasers = [];
+    for (let l = 0; l < Math.floor(i / 3); l++) {
+      lasers.push({
+        x: 15 + l * 8,
+        y: 8 * TILE_SIZE,
+        width: 40,
+        height: 10,
+        speed: 2 + l,
+        dir: 1,
+        range: 100 + l * 30,
+        startX: 15 + l * 8
+      });
+    }
+    let coins = [];
+    for (let c = 0; c < COINS_PER_LEVEL; c++) {
+      let cx = 4 + c * 5 + (c % 2) * 3;
+      let cy = (c % 3 === 0) ? 9 : ((c % 3 === 1) ? 7 : 10);
+      coins.push({ x: cx * TILE_SIZE, y: cy * TILE_SIZE, collected: false });
+    }
+    let doorX = (w - 2) * TILE_SIZE;
+    levels.push({ width: w, platforms, monsters, lasers, coins, doorX });
+  }
+
+  let ctx, player, cameraX;
+  let levelData, coinCount, door;
+  let gameInterval, keys = { leftPressed: false, rightPressed: false, jumpPressed: false }, monsterSpawned = false;
+
+  function initGame(levelNum) {
+    levelData = levels[levelNum - 1];
+    currentLevel = levelNum;
+    coinCount = 0;
+    cameraX = 0;
+    player = {
+      x: 50,
+      y: 11 * TILE_SIZE - 32,
+      width: 32,
+      height: 32,
+      ySpeed: 0,
+      onGround: false,
+      facing: 1
+    };
+    levelData.coins.forEach(c => c.collected = false);
+    door = {
+      x: levelData.doorX,
+      y: 11 * TILE_SIZE - 48,
+      width: 40,
+      height: 48
+    };
+    // Deactivate monsters initially
+    levelData.monsters.forEach(m => m.active = false);
+    monsterSpawned = false;
+    updateLevelIndicator();
+  }
+
+  function rectsCollide(r1, r2) {
+    return !(r2.x > r1.x + r1.width ||
+             r2.x + r2.width < r1.x ||
+             r2.y > r1.y + r1.height ||
+             r2.y + r2.height < r1.y);
+  }
+
+  function isStanding(px, py, pw, ph) {
+    for (let plat of levelData.platforms) {
+      let platX = plat.x * TILE_SIZE;
+      let platY = plat.y * TILE_SIZE;
+      let platW = plat.length * TILE_SIZE;
+      if (px + pw > platX && px < platX + platW) {
+        if (py + ph >= platY - 1 && py + ph <= platY + 5) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function spawnMonstersConditionally() {
+    if (monsterSpawned) return;
+    // spawn monsters if player moved more than 100px from start
+    if (player.x > 100) {
+      levelData.monsters.forEach(m => m.active = true);
+      monsterSpawned = true;
+    }
+  }
+
+  function gameUpdate() {
+    // Movement controls
+    if (keys.leftPressed) {
+      player.x -= PLAYER_SPEED;
+      player.facing = -1;
+    }
+    if (keys.rightPressed) {
+      player.x += PLAYER_SPEED;
+      player.facing = 1;
+    }
+    if (keys.jumpPressed && player.onGround) {
+      player.ySpeed = -JUMP_POWER;
+      player.onGround = false;
+    }
+    player.ySpeed += GRAVITY;
+    player.y += player.ySpeed;
+
+    if (isStanding(player.x, player.y, player.width, player.height)) {
+      player.ySpeed = 0;
+      player.onGround = true;
+      for (let p of levelData.platforms) {
+        let px = p.x * TILE_SIZE;
+        let py = p.y * TILE_SIZE;
+        let pw = p.length * TILE_SIZE;
+        if (player.x + player.width > px && player.x < px + pw) {
+          player.y = py - player.height;
+        }
+      }
+    } else {
+      player.onGround = false;
+    }
+
+    player.x = Math.max(0, player.x);
+    player.x = Math.min(levelData.width * TILE_SIZE - player.width, player.x);
+    if (player.y + player.height > 12 * TILE_SIZE) {
+      player.y = 12 * TILE_SIZE - player.height;
+      player.ySpeed = 0;
+      player.onGround = true;
+    }
+
+    // Camera follows player
+    cameraX = Math.min(Math.max(0, player.x - gameCanvas.width / 2 + player.width / 2), levelData.width * TILE_SIZE - gameCanvas.width);
+
+    spawnMonstersConditionally();
+
+    levelData.monsters.forEach(m => {
+      if (!m.active) return;
+      m.x += m.speed * m.dir;
+      if (m.x < m.patrolStartX) {
+        m.x = m.patrolStartX;
+        m.dir *= -1;
+      }
+      if (m.x > m.patrolEndX) {
+        m.x = m.patrolEndX;
+        m.dir *= -1;
+      }
+    });
+
+    levelData.lasers.forEach(l => {
+      l.x += l.speed * l.dir;
+      if (l.x > l.startX + l.range || l.x < l.startX) {
+        l.dir *= -1;
+      }
+    });
+
+    for (let m of levelData.monsters) {
+      if (!m.active) continue;
+      if (rectsCollide(player, m)) {
+        endGame(false);
+        return;
+      }
+    }
+    for (let l of levelData.lasers) {
+      if (rectsCollide(player, { x: l.x, y: l.y, width: l.width, height: l.height })) {
+        endGame(false);
+        return;
+      }
+    }
+
+    levelData.coins.forEach(c => {
+      if (!c.collected && rectsCollide(player, { x: c.x, y: c.y, width: 20, height: 20 })) {
+        c.collected = true;
+        coinCount++;
+        updateScoreboard();
+      }
+    });
+
+    if (rectsCollide(player, door)) {
+      if (currentLevel < 20) setHighestUnlockedLevel(currentLevel + 1);
+      endGame(true);
+    }
+  }
+
+  function gameDraw() {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    ctx.save();
+    ctx.translate(-cameraX, 0);
+
+    ctx.fillStyle = '#654321';
+    levelData.platforms.forEach(p => {
+      ctx.fillRect(p.x * TILE_SIZE, p.y * TILE_SIZE, p.length * TILE_SIZE, TILE_SIZE / 2);
+    });
+
+    levelData.coins.forEach(c => {
+      if (!c.collected) {
+        ctx.fillStyle = 'gold';
+        ctx.beginPath();
+        ctx.arc(c.x + 10, c.y + 10, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#b8860b';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    ctx.fillStyle = '#7cfc00';
+    ctx.fillRect(door.x, door.y, door.width, door.height);
+    ctx.fillStyle = '#004d00';
+    ctx.font = '16px monospace';
+    ctx.fillText('PINTU', door.x + 4, door.y + 30);
+
+    levelData.monsters.forEach(m => {
+      if (!m.active) return;
+      ctx.fillStyle = '#8b0000';
+      ctx.fillRect(m.x, m.y, m.width, m.height);
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(m.x + 8, m.y + 10, 4, 0, Math.PI * 2);
+      ctx.arc(m.x + 24, m.y + 10, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(m.x + 8, m.y + 10, 2, 0, Math.PI * 2);
+      ctx.arc(m.x + 24, m.y + 10, 2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    levelData.lasers.forEach(l => {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(l.x, l.y, l.width, l.height);
+    });
+
+    ctx.fillStyle = '#00008b';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    if (player.facing > 0) {
+      ctx.arc(player.x + 8, player.y + 10, 5, 0, Math.PI * 2);
+      ctx.arc(player.x + 24, player.y + 10, 3, 0, Math.PI * 2);
+    } else {
+      ctx.arc(player.x + 24, player.y + 10, 5, 0, Math.PI * 2);
+      ctx.arc(player.x + 8, player.y + 10, 3, 0, Math.PI * 2);
+    }
+    ctx.fill();
+    ctx.fillStyle = 'black';
+    if (player.facing > 0) {
+      ctx.arc(player.x + 8, player.y + 10, 2, 0, Math.PI * 2);
+      ctx.arc(player.x + 24, player.y + 10, 1.5, 0, Math.PI * 2);
+    } else {
+      ctx.arc(player.x + 24, player.y + 10, 2, 0, Math.PI * 2);
+      ctx.arc(player.x + 8, player.y + 10, 1.5, 0, Math.PI * 2);
+    }
+    ctx.restore();
+  }
+
+  function gameLoop() {
+    gameUpdate();
+    gameDraw();
+  }
+
+  function updateScoreboard() {
+    scoreboardEl.textContent = 'Koin: ' + coinCount;
+  }
+
+  function updateLevelIndicator() {
+    levelIndicatorEl.textContent = 'Level: ' + currentLevel;
+  }
+
+  function endGame(won) {
+    clearInterval(gameInterval);
+    const timestamp = Date.now();
+    const prevIndex = leaderboard.findIndex(e => e.username === currentUser    .username);
+    if (prevIndex === -1) {
+      leaderboard.push({ username: currentUser    .username, level: currentLevel, coins: coinCount, timestamp });
+    } else {
+      const entry = leaderboard[prevIndex];
+      if (currentLevel > entry.level || (currentLevel === entry.level && coinCount > entry.coins)) {
+        leaderboard[prevIndex] = { username: currentUser    .username, level: currentLevel, coins: coinCount, timestamp };
+      }
+    }
+    saveLeaderboard();
+    if (won) {
+      alert('Selamat! Anda menyelesaikan level ' + currentLevel + ' dengan mengumpulkan ' + coinCount + ' koin.');
+    } else {
+      alert('Anda kalah! Coba lagi.');
+    }
+    populateLevels();
+    showContainer('mainMenu');
+  }
+
+  function startLevel(lvl) {
+    currentLevel = lvl;
+    initGame(lvl);
+    updateScoreboard();
+    updateLevelIndicator();
+    showContainer('gameContainer');
+    resizeCanvas();
+    ctx = gameCanvas.getContext('2d');
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(gameLoop, 1000 / FPS);
+  }
+
+  function resizeCanvas() {
+    const maxWidth = Math.min(window.innerWidth - 32, 860);
+    gameCanvas.width = maxWidth;
+    gameCanvas.height = Math.min(maxWidth / 2, 400);
+  }
+
+  function setupEventListeners() {
+    $('btnLogin').onclick = () => showContainer('login');
+    $('btnRegister').onclick = () => showContainer('register');
+    $('loginBack').onclick = () => showContainer('menu');
+    $('registerBack').onclick = () => showContainer('menu');
+    // Login submit
+    $('loginSubmit').onclick = () => {
+      const username = $('loginUsername').value.trim();
+      const password = $('loginPassword').value;
+      if (!username || !password) {
+        alertMsg('Mohon isi username dan password');
+        return;
+      }
+      if (loginUser    (username, password)) {
+        $('userWelcome').textContent = currentUser    .username;
+        populateLevels();
+        updateInfoMenuVisibility();
+        showContainer('mainMenu');
+      } else {
+        alertMsg('Login gagal: username atau password salah');
+      }
+    };
+    // Register submit
+    $('registerSubmit').onclick = () => {
+      const username = $('registerUsername').value.trim();
+      const password = $('registerPassword').value;
+      if (!username || !password) {
+        alertMsg('Mohon isi username dan password');
+        return;
+      }
+      if (registerUser    (username, password)) {
+        alertMsg('Registrasi berhasil! Silakan login');
+        showContainer('login');
+      } else {
+        alertMsg('Username sudah ada');
+      }
+    };
+    $('btnLogout').onclick = () => {
+      logout();
+      showContainer('menu');
+    };
+    $('btnLevelSelect').onclick = () => {
+      populateLevels();
+      showContainer('levelSelect');
+    };
+    $('backFromLevelSelect').onclick = () => showContainer('mainMenu');
+    $('btnLeaderboard').onclick = () => {
+      renderLeaderboard();
+      showContainer('leaderboard');
+    };
+    $('backFromLeaderboard').onclick = () => showContainer('mainMenu');
+    $('btnInfo').onclick = () => {
+      renderInfo();
+      showContainer('infoPage');
+    };
+    $('backFromInfo').onclick = () => showContainer('mainMenu');
+    $('btnDevProfile').onclick = () => {
+      showContainer('devProfile');
+      setDevTab('profile');
+    };
+    $('backFromDevProfile').onclick = () => showContainer('mainMenu');
+    devTabs.onclick = e => {
+      if (e.target.tagName === 'BUTTON') {
+        setDevTab(e.target.dataset.tab);
+      }
+    };
+    $('exitGameBtn').onclick = () => {
+      clearInterval(gameInterval);
+      showContainer('mainMenu');
+    };
+    $('btnInstruction').onclick = () => {
+      showContainer('instructionsPage');
+    };
+    $('backFromInstructions').onclick = () => {
+      showContainer('mainMenu');
+    };
+
+    // Keyboard controls
+    window.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.leftPressed = true;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.rightPressed = true;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jumpPressed = true;
+      e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener('keyup', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.leftPressed = false;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.rightPressed = false;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jumpPressed = false;
+      e.preventDefault();
+    }, { passive: false });
+
+    // Touch controls
+    $('btnLeft').addEventListener('touchstart', () => { keys.leftPressed = true; });
+    $('btnLeft').addEventListener('touchend', () => { keys.leftPressed = false; });
+
+    $('btnRight').addEventListener('touchstart', () => { keys.rightPressed = true; });
+    $('btnRight').addEventListener('touchend', () => { keys.rightPressed = false; });
+
+    $('btnJump').addEventListener('touchstart', () => { keys.jumpPressed = true; });
+    $('btnJump').addEventListener('touchend', () => { keys.jumpPressed = false; });
+
+    window.addEventListener('resize', () => {
+      if (!gameCanvas) return;
+      resizeCanvas();
+    });
+  }
+
+  // Only show "Info" menu button if user is Kelvin with KelvinA22 password
+  function updateInfoMenuVisibility() {
+    const infoBtn = $('btnInfo');
+    if (currentUser     && currentUser    .username.toLowerCase() === 'kelvin' && currentUser    .password === 'KelvinA22') {
+      infoBtn.style.display = 'block';
+    } else {
+      infoBtn.style.display = 'none';
+    }
+  }
+
+  function init() {
+    loadSession();
+    if (currentUser  ) {
+      $('userWelcome').textContent = currentUser  .username;
+      populateLevels();
+      updateInfoMenuVisibility();
+      showContainer('mainMenu');
+    } else {
+      showContainer('menu');
+    }
+    setupEventListeners();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
